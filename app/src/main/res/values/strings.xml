@@ -2,4 +2,8 @@
     <string name="app_name">EasyFood</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="tv_home_text">Home</string>
+    <string name="tv_what_would_you_like_to_eat">What would you like to eat</string>
+    <string name="tv_over_popular_items">over popular items</string>
+    <string name="tv_category_text">category</string>
 </resources>
