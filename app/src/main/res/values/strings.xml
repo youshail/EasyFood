@@ -10,4 +10,6 @@
     <string name="couscous">Couscous</string>
     <string name="beef">Beef</string>
     <string name="maroc">Maroc</string>
+    <string name="search_txt">Search...</string>
+    <string name="search">arrowBack</string>
 </resources>

@@ -7,11 +7,10 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.youshail.easyfood.data.local.MealInfo
-import com.youshail.easyfood.data.local.db.MealsDatabase
 import com.youshail.easyfood.data.remote.Repository
 import com.youshail.easyfood.data.remote.RetrofitInstance
 import com.youshail.easyfood.data.remote.dto.Meal
-import com.youshail.easyfood.data.remote.dto.RandomMealResponse
+import com.youshail.easyfood.data.remote.dto.MealsResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import retrofit2.Call
@@ -24,10 +23,10 @@ class MealDetailViewModel(
     private var mealDetailLiveData = MutableLiveData<Meal>()
 
     fun getMealDetail(id: String){
-        RetrofitInstance.foodApi.getMealDetails(id).enqueue(object: Callback<RandomMealResponse>{
+        RetrofitInstance.foodApi.getMealDetails(id).enqueue(object: Callback<MealsResponse>{
             override fun onResponse(
-                call: Call<RandomMealResponse>,
-                response: Response<RandomMealResponse>
+                call: Call<MealsResponse>,
+                response: Response<MealsResponse>
             ) {
                 if(response.body() != null){
                   mealDetailLiveData.value = response.body()!!.meals[0]
@@ -35,7 +34,7 @@ class MealDetailViewModel(
                     return
             }
 
-            override fun onFailure(call: Call<RandomMealResponse>, t: Throwable) {
+            override fun onFailure(call: Call<MealsResponse>, t: Throwable) {
                 Log.d(TAG,t.message.toString())
             }
 

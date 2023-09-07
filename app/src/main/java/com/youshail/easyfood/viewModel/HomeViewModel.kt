@@ -14,7 +14,7 @@ import com.youshail.easyfood.data.remote.dto.CategoryList
 import com.youshail.easyfood.data.remote.dto.Meal
 import com.youshail.easyfood.data.remote.dto.MealByCategory
 import com.youshail.easyfood.data.remote.dto.MealCategory
-import com.youshail.easyfood.data.remote.dto.RandomMealResponse
+import com.youshail.easyfood.data.remote.dto.MealsResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import retrofit2.Call
@@ -29,25 +29,32 @@ class HomeViewModel(
     private val bottomSheetMealLiveData = MutableLiveData<Meal>()
     private val popularMealsLiveData = MutableLiveData<List<MealCategory>>()
     private val categoryListLiveData = MutableLiveData<List<Category>>()
+    private val searchedMealLiveData = MutableLiveData<List<Meal>>()
     private val favoriteMealLiveData = repository.mealList
+    private var saveStateRandomMeal : Meal ?=null
 
     fun getRandomMeal() {
+        saveStateRandomMeal?.let { randomMeal->
+            randomMealLiveData.postValue(randomMeal)
+            return
+        }
 
         RetrofitInstance.foodApi.getRandomMeal().enqueue(
-            object : Callback<RandomMealResponse> {
+            object : Callback<MealsResponse> {
                 override fun onResponse(
-                    call: Call<RandomMealResponse>,
-                    response: Response<RandomMealResponse>
+                    call: Call<MealsResponse>,
+                    response: Response<MealsResponse>
                 ) {
                     if (response.body() != null) {
                         val randomMeal = response.body()!!.meals[0]
                         randomMealLiveData.value = randomMeal
+                        saveStateRandomMeal = randomMeal
                     } else {
                         return
                     }
                 }
 
-                override fun onFailure(call: Call<RandomMealResponse>, t: Throwable) {
+                override fun onFailure(call: Call<MealsResponse>, t: Throwable) {
                     Log.d("HomeFragment", t.message.toString())
                 }
 
@@ -97,35 +104,56 @@ class HomeViewModel(
         })
     }
 
+    fun observeCategoryListLiveData(): LiveData<List<Category>>{
+        return categoryListLiveData
+    }
+
     fun getMealById(id: String){
-        RetrofitInstance.foodApi.getMealDetails(id).enqueue(object : Callback<RandomMealResponse>{
+        RetrofitInstance.foodApi.getMealDetails(id).enqueue(object : Callback<MealsResponse>{
             override fun onResponse(
-                call: Call<RandomMealResponse>,
-                response: Response<RandomMealResponse>
+                call: Call<MealsResponse>,
+                response: Response<MealsResponse>
             ) {
                 response.body()?.let { meals ->
                     bottomSheetMealLiveData.postValue(meals.meals.first())
                 }
             }
 
-            override fun onFailure(call: Call<RandomMealResponse>, t: Throwable) {
+            override fun onFailure(call: Call<MealsResponse>, t: Throwable) {
                 Log.e("Home View Model",t.message.toString())
             }
 
         })
     }
 
-    fun observeCategoryListLiveData(): LiveData<List<Category>>{
-        return categoryListLiveData
+    fun observeBottomSheetMealLiveData(): LiveData<Meal>{
+        return bottomSheetMealLiveData
+    }
+
+    fun getSearchMeals(name: String){
+        RetrofitInstance.foodApi.getMealByName(name).enqueue(object : Callback<MealsResponse>{
+            override fun onResponse(call: Call<MealsResponse>, response: Response<MealsResponse>) {
+                val mealsList = response.body()?.meals
+                mealsList.let { meals ->
+                    searchedMealLiveData.postValue(meals)
+                }
+            }
+
+            override fun onFailure(call: Call<MealsResponse>, t: Throwable) {
+                Log.e("Home View Model",t.message.toString())
+            }
+
+        })
+    }
+
+    fun observeSearchedMealLiveData(): LiveData<List<Meal>>{
+        return searchedMealLiveData
     }
 
     fun observeFavoriteMailLiveData(): LiveData<List<MealInfo>>{
         return favoriteMealLiveData
     }
 
-    fun observeBottomSheetMealLiveData(): LiveData<Meal>{
-        return bottomSheetMealLiveData
-    }
 
     fun deleteMeal(mealInfo: MealInfo){
         viewModelScope.launch(Dispatchers.IO) {

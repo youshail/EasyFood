@@ -3,7 +3,7 @@ package com.youshail.easyfood.data.remote
 
 import com.youshail.easyfood.data.remote.dto.CategoryList
 import com.youshail.easyfood.data.remote.dto.MealByCategory
-import com.youshail.easyfood.data.remote.dto.RandomMealResponse
+import com.youshail.easyfood.data.remote.dto.MealsResponse
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Query
@@ -11,22 +11,25 @@ import retrofit2.http.Query
 interface FoodApi {
 
     @GET("random.php")
-    fun getRandomMeal(): Call<RandomMealResponse>
+    fun getRandomMeal(): Call<MealsResponse>
 
-    @GET("lookup.php?")
-    fun getMealDetails(@Query("i") id:String) : Call<RandomMealResponse>
+    @GET("lookup.php")
+    fun getMealDetails(@Query("i") id: String): Call<MealsResponse>
 
 
     @GET("filter.php")
-    fun getPopularMealItems(@Query("c") id: String) : Call<MealByCategory>
+    fun getPopularMealItems(@Query("c") id: String): Call<MealByCategory>
 
     @GET("categories.php")
     fun getCategories(): Call<CategoryList>
 
     @GET("filter.php")
-    fun getMealByCategory(@Query("c") id: String) : Call<MealByCategory>
+    fun getMealByCategory(@Query("c") id: String): Call<MealByCategory>
+
+    @GET("search.php")
+    fun getMealByName(@Query("s") name: String): Call<MealsResponse>
 
     companion object {
-        const val BASE_URL="https://www.themealdb.com/api/json/v1/1/"
+        const val BASE_URL = "https://www.themealdb.com/api/json/v1/1/"
     }
 }
