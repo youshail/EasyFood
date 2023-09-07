@@ -5,14 +5,22 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.youshail.easyfood.data.local.MealInfo
+import com.youshail.easyfood.data.local.db.MealsDatabase
+import com.youshail.easyfood.data.remote.Repository
 import com.youshail.easyfood.data.remote.RetrofitInstance
 import com.youshail.easyfood.data.remote.dto.Meal
 import com.youshail.easyfood.data.remote.dto.RandomMealResponse
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class MealDetailViewModel: ViewModel() {
+class MealDetailViewModel(
+    private val repository: Repository
+): ViewModel() {
     private var mealDetailLiveData = MutableLiveData<Meal>()
 
     fun getMealDetail(id: String){
@@ -37,4 +45,12 @@ class MealDetailViewModel: ViewModel() {
     fun observeMailDetailLiveData(): LiveData<Meal>{
         return mealDetailLiveData
     }
+
+    fun insertMeal(mealInfo: MealInfo){
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.insert(mealInfo)
+        }
+    }
+
+
 }

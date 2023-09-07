@@ -11,6 +11,7 @@ import com.youshail.easyfood.databinding.PopularMealsBinding
  class MostPopularRecyclerAdapter() : RecyclerView.Adapter<MostPopularRecyclerAdapter.PopularMealViewHolder>() {
      private var mealsList = ArrayList<MealCategory>()
      lateinit var onItemClick :((MealCategory)-> Unit)
+     var onLongItemClick : ((MealCategory)-> Unit)? = null
 
      @SuppressLint("NotifyDataSetChanged")
      fun setMeals(mealsList: ArrayList<MealCategory>){
@@ -35,6 +36,11 @@ import com.youshail.easyfood.databinding.PopularMealsBinding
 
          holder.itemView.setOnClickListener {
              onItemClick.invoke(mealsList[position])
+         }
+
+         holder.itemView.setOnLongClickListener {
+             onLongItemClick?.invoke(mealsList[position])
+             true
          }
      }
  }

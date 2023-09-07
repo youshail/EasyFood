@@ -6,4 +6,8 @@
     <string name="tv_what_would_you_like_to_eat">What would you like to eat</string>
     <string name="tv_over_popular_items">over popular items</string>
     <string name="tv_category_text">category</string>
+    <string name="read_more">Read more ...</string>
+    <string name="couscous">Couscous</string>
+    <string name="beef">Beef</string>
+    <string name="maroc">Maroc</string>
 </resources>

@@ -18,10 +18,13 @@ interface FoodApi {
 
 
     @GET("filter.php")
-    fun getMealByCategory(@Query("c") id: String) : Call<MealByCategory>
+    fun getPopularMealItems(@Query("c") id: String) : Call<MealByCategory>
 
     @GET("categories.php")
     fun getCategories(): Call<CategoryList>
+
+    @GET("filter.php")
+    fun getMealByCategory(@Query("c") id: String) : Call<MealByCategory>
 
     companion object {
         const val BASE_URL="https://www.themealdb.com/api/json/v1/1/"

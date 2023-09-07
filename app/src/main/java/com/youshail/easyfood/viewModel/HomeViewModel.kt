@@ -5,6 +5,9 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.youshail.easyfood.data.local.MealInfo
+import com.youshail.easyfood.data.remote.Repository
 import com.youshail.easyfood.data.remote.RetrofitInstance
 import com.youshail.easyfood.data.remote.dto.Category
 import com.youshail.easyfood.data.remote.dto.CategoryList
@@ -12,15 +15,21 @@ import com.youshail.easyfood.data.remote.dto.Meal
 import com.youshail.easyfood.data.remote.dto.MealByCategory
 import com.youshail.easyfood.data.remote.dto.MealCategory
 import com.youshail.easyfood.data.remote.dto.RandomMealResponse
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class HomeViewModel : ViewModel() {
+class HomeViewModel(
+    private var repository: Repository
+) : ViewModel() {
 
     private val randomMealLiveData = MutableLiveData<Meal>()
+    private val bottomSheetMealLiveData = MutableLiveData<Meal>()
     private val popularMealsLiveData = MutableLiveData<List<MealCategory>>()
     private val categoryListLiveData = MutableLiveData<List<Category>>()
+    private val favoriteMealLiveData = repository.mealList
 
     fun getRandomMeal() {
 
@@ -51,7 +60,7 @@ class HomeViewModel : ViewModel() {
     }
 
     fun getPopularMeals(category: String){
-        RetrofitInstance.foodApi.getMealByCategory(category).enqueue(object : Callback<MealByCategory>{
+        RetrofitInstance.foodApi.getPopularMealItems(category).enqueue(object : Callback<MealByCategory>{
             override fun onResponse(
                 call: Call<MealByCategory>,
                 response: Response<MealByCategory>
@@ -88,8 +97,46 @@ class HomeViewModel : ViewModel() {
         })
     }
 
+    fun getMealById(id: String){
+        RetrofitInstance.foodApi.getMealDetails(id).enqueue(object : Callback<RandomMealResponse>{
+            override fun onResponse(
+                call: Call<RandomMealResponse>,
+                response: Response<RandomMealResponse>
+            ) {
+                response.body()?.let { meals ->
+                    bottomSheetMealLiveData.postValue(meals.meals.first())
+                }
+            }
+
+            override fun onFailure(call: Call<RandomMealResponse>, t: Throwable) {
+                Log.e("Home View Model",t.message.toString())
+            }
+
+        })
+    }
+
     fun observeCategoryListLiveData(): LiveData<List<Category>>{
         return categoryListLiveData
+    }
+
+    fun observeFavoriteMailLiveData(): LiveData<List<MealInfo>>{
+        return favoriteMealLiveData
+    }
+
+    fun observeBottomSheetMealLiveData(): LiveData<Meal>{
+        return bottomSheetMealLiveData
+    }
+
+    fun deleteMeal(mealInfo: MealInfo){
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.delete(mealInfo)
+        }
+    }
+
+    fun insertMeal(mealInfo: MealInfo){
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.insert(mealInfo)
+        }
     }
 
 
